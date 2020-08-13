@@ -128,10 +128,10 @@ class TopicModel:
             print(f"Topic {topic_idx}:")
             print(" ".join([feature_names[i]
                             for i in topic.argsort()[:-self.top_words - 1:-1]]))
-            # top_doc_indices = np.argsort(W[:, topic_idx])[::-1][0:self.top_documents]
-            # for doc_index in top_doc_indices:
-            #     doc_id = self.documents_map[self.documents[doc_index]]
-            #     print(self.df.loc[self.df.index[self.df["id"] == doc_id][0], "title"])
+            top_doc_indices = np.argsort(W[:, topic_idx])[::-1][0:self.top_documents]
+            for doc_index in top_doc_indices:
+                doc_id = self.documents_map[self.documents[doc_index]]
+                print(self.df.loc[self.df.index[self.df["id"] == doc_id][0], "title"])
             doc_indices = np.argsort(W[:, topic_idx])[::-1]
             coauthors_count = Counter()
             year_count = Counter()
@@ -166,7 +166,7 @@ def main():
     parser.add_argument("-w", "--top_words", type=int, help="How many words to print out from each topic",
                         required=False, default=10)
     parser.add_argument("-d", "--top_documents", type=int, help="How many document titles to print out from each topic",
-                        required=False, default=3)
+                        required=False, default=0)
     parser.add_argument("-f", "--num_features", type=int,
                         help="The number of features to use in the model", required=False, default=1000)
     parser.add_argument("-n", "--nmf", action="store_true", help="Set this flag to use NMF instead of LDA")
