@@ -16,6 +16,11 @@ nlp = spacy.load("en_core_sci_lg", disable=['ner'])
 
 
 def tokenizer_lemmatizer(text):
+    """
+    Uses spacy to tokenize and lemmatize a given string
+    :param text: String to tokenize
+    :return: list of tokens
+    """
     tokenizer = nlp.Defaults.create_tokenizer(nlp)
     tokens = tokenizer(text)
     # nlp.Defaults.stop_words.add("model")
@@ -24,6 +29,11 @@ def tokenizer_lemmatizer(text):
 
 
 def preprocessor(text):
+    """
+    Removes punctuation and whitespace from a token list.
+    :param text: Either the token list or the individual token (recursive function)
+    :return: Either the processed token or the full list of tokens
+    """
     if isinstance(text, str):
         text = re.sub('<[^>]*>', '', text)
         text = re.sub('[\W]+', '', text.lower())
@@ -34,10 +44,22 @@ def preprocessor(text):
 
 
 def sentence_join(sentence_list):
+    """
+    Turns a list of tokens into a string of tokens separated by a space.
+    This is done because LDA takes in strings as input, not lists.
+    :param sentence_list: token list
+    :return: string of tokens
+    """
     return " ".join(sentence_list)
 
 
 def pipelinize(function, active=True):
+    """
+    Turns preprocessor into a pipeline that runs all the provided preprocessing functions in order
+    :param function: Function to be put in pipeline
+    :param active: If function is active
+    :return:
+    """
     def list_comprehend_a_function(list_or_series, activated=True):
         if activated:
             return [function(i) for i in list_or_series]
@@ -47,10 +69,16 @@ def pipelinize(function, active=True):
     return FunctionTransformer(list_comprehend_a_function, validate=False, kw_args={'active': active})
 
 
-# noinspection SqlNoDataSourceInspection
 class TopicModel:
 
     def __init__(self, num_features, num_topics, top_words, top_documents):
+        """
+        Initializes the topic model
+        :param num_features: Number of model features for training
+        :param num_topics: Number of topics to create
+        :param top_words: Number of words to print out from each topic
+        :param top_documents: Number of document titles to print out from each topic
+        """
         self.num_features = num_features
         self.num_topics = num_topics
         self.top_words = top_words
@@ -65,6 +93,11 @@ class TopicModel:
         self.document_max = defaultdict(float)
 
     def get_data(self):
+        """
+        Acquire data to run the model with.
+        Data either comes from BQ or is loaded from pickle if it's been previously pulled.
+        :return:
+        """
         if os.path.exists("data/intermediate/documents.pkl"):
             self.df = pd.read_pickle("data/intermediate/documents.pkl")
         else:
@@ -74,6 +107,11 @@ class TopicModel:
             pd.to_pickle(self.df, "data/intermediate/documents.pkl")
 
     def preprocess_data(self):
+        """
+        Run the preprocessing functions. If the preprocessing functions
+        have already been run, load preprocessed data from pickle.
+        :return:
+        """
         if os.path.exists("data/intermediate/preprocessed_abstracts.pkl"):
             with open("data/intermediate/preprocessed_abstracts.pkl", "rb") as file_in:
                 self.documents = pickle.load(file_in)
@@ -86,10 +124,16 @@ class TopicModel:
             with open("data/intermediate/preprocessed_abstracts.pkl", "wb") as file_out:
                 pickle.dump(self.documents, file_out)
         assert len(self.documents) == len(self.df)
+        # Create map from preprocessed document string to document id
         for i, doc in enumerate(self.documents):
             self.documents_map[doc] = self.df.iloc[i, 0]  # get the ids
 
     def fit_nmf_model(self):
+        """
+        Fit the NMF model. Run if --nmf flag set.
+        Once model fit, divide documents by topic, display topic results, and save topics by year.
+        :return:
+        """
         tfidf = self.tfidf_vectorizer.fit_transform(self.documents)
         tfidf_feature_names = self.tfidf_vectorizer.get_feature_names()
         nmf_model = NMF(n_components=self.num_topics, random_state=1, alpha=.1, l1_ratio=.5, init='nndsvd').fit(tfidf)
@@ -101,6 +145,11 @@ class TopicModel:
             pickle.dump(topics_by_year, file_out)
 
     def fit_lda_model(self):
+        """
+        Fit the LDA model. Run if --nmf flag not set.
+        Once model fit, divide documents by topic, display topic results, and save topics by year.
+        :return:
+        """
         tf = self.tf_vectorizer.fit_transform(self.documents)
         tf_feature_names = self.tf_vectorizer.get_feature_names()
         lda_model = LatentDirichletAllocation(n_components=self.num_topics, max_iter=5, learning_method='online',
@@ -113,6 +162,14 @@ class TopicModel:
             pickle.dump(topics_by_year, file_out)
 
     def divide_documents_by_topic(self, H, W):
+        """
+        Divide the documents into topics. This is done by, for each document,
+        selecting the topic for which they have the highest weighting.
+        This means all documents are assigned some topic.
+        :param H: transformed LDA data
+        :param W: Variational parameters for topic word distribution
+        :return:
+        """
         for topic_idx, topic in enumerate(H):
             doc_indices = np.argsort(W[:, topic_idx])[::-1]
             doc_values = np.sort(W[:, topic_idx])[::-1]
@@ -123,6 +180,19 @@ class TopicModel:
                     self.document_topics[doc_id] = topic_idx
 
     def display_topics(self, H, W, feature_names):
+        """
+        Print out, for each topic:
+        a) top_words words per topic
+        b) top_documents titles per topic
+        c) The number of papers assigned to the topic
+        d) The paper counts by year
+        e) top_documents titles per topic
+        f) The number of papers assigned to the topic by each of the topic 6 tech companies of interest
+        :param H: transformed LDA data
+        :param W: Variational parameters for topic word distribution
+        :param feature_names: The names of the features (this provides top words)
+        :return: Paper counts by year for all topics
+        """
         topics_by_year = {}
         for topic_idx, topic in enumerate(H):
             print(f"Topic {topic_idx}:")

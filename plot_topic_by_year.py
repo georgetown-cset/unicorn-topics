@@ -5,6 +5,13 @@ import pickle
 
 
 def plot_topic_by_year(topics_by_year, topic, skip_2020=True):
+    """
+    Plots changes in counts of papers in topic by year
+    :param topics_by_year: Dict containing counts of papers in topic by year
+    :param topic: The topic to chart
+    :param skip_2020: Whether to skip 2020 in the chart. Defaults to yes since 2020 is incomplete.
+    :return:
+    """
     data = topics_by_year[topic]
     # years are first element in tuple, counts are second
     x_axis = [i[0] for i in data]
