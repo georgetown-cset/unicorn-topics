@@ -48,15 +48,15 @@ pip3 install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.2.5/
 pip3 install -r requirements.txt
 ```
 
-2.) `export GOOGLE_APPLICATION_CREDENTIALS=<path to your credentials>` - a service account json.
+3.) `export GOOGLE_APPLICATION_CREDENTIALS=<path to your credentials>` - a service account json.
 You should have at least BQ reader permissions
 
-3.) If you wish to use preloaded data (pickle files) for the datasets
+4.) If you wish to use preloaded data (pickle files) for the datasets
 or the preprocessed data, put that data into `data/intermediate`. The dataset file
 should be named `documents.okl` and the preprocessed data file should be
 named `preprocessed_abstracts.pkl`.
 
-4.) Preloaded data should also be used to run `plot_topic_by_year.py`. This data should
+5.) Preloaded data should also be used to run `plot_topic_by_year.py`. This data should
 also be stored in `data/intermediate` and should be named `topics_by_year.pkl`
 
 Run topic model as follows:
