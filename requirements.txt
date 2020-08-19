@@ -6,7 +6,6 @@ chardet==3.0.4
 cycler==0.10.0
 cymem==2.0.3
 en-core-sci-lg==0.2.5
-en-core-sci-md==0.2.5
 google-api-core==1.21.0
 google-auth==1.19.0
 google-auth-oauthlib==0.4.1

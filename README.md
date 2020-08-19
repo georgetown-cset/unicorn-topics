@@ -37,7 +37,15 @@ To run this code:
  ```bash
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+```
+
+2.) Set up spacy and your other requirements:
+
+```
+pip3 install spacy==2.3.2
+pip3 install scispacy==0.2.5
+pip3 install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.2.5/en_core_sci_lg-0.2.5.tar.gz
+pip3 install -r requirements.txt
 ```
 
 2.) `export GOOGLE_APPLICATION_CREDENTIALS=<path to your credentials>` - a service account json.
