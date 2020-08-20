@@ -18,6 +18,14 @@ class TestTopicModel(unittest.TestCase):
         joined = topic_model.sentence_join(['dog', 'well', 'dog'])
         self.assertEqual(joined, "dog well dog")
 
+    def test_pipelinize(self):
+        estimators = [('tokenizer', topic_model.pipelinize(topic_model.tokenizer_lemmatizer)),
+                      ('preprocessor', topic_model.pipelinize(topic_model.preprocessor)),
+                      ('sentence_join', topic_model.pipelinize(topic_model.sentence_join))]
+        pipe = topic_model.Pipeline(estimators)
+        sentence = pipe.transform(["All dogs are the best dogs."])
+        self.assertEqual(sentence, ["dog well dog"])
+
     def test_init_topic_model(self):
         model = topic_model.TopicModel(1000, 3, 2, 3)
         self.assertEqual(model.num_features, 1000)
@@ -35,7 +43,6 @@ class TestTopicModel(unittest.TestCase):
         model.get_data()
         self.assertIsNotNone(model.df)
         self.assertIsInstance(model.df, pd.core.frame.DataFrame)
-
 
 if __name__ == '__main__':
     unittest.main()

@@ -60,8 +60,8 @@ def pipelinize(function, active=True):
     :param active: If function is active
     :return:
     """
-    def list_comprehend_a_function(list_or_series, activated=True):
-        if activated:
+    def list_comprehend_a_function(list_or_series, active=True):
+        if active:
             return [function(i) for i in list_or_series]
         else:  # if it's not active, just pass it right back
             return list_or_series
@@ -191,7 +191,7 @@ class TopicModel:
         :param H: transformed LDA data
         :param W: Variational parameters for topic word distribution
         :param feature_names: The names of the features (this provides top words)
-        :return: Paper counts by year for all topics
+        :return: Paper counts by year for all topicsz
         """
         topics_by_year = {}
         for topic_idx, topic in enumerate(H):
