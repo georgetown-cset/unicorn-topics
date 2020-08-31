@@ -20,13 +20,15 @@ The ultimate dataset used in this project is `project_unicorn.coauthors_dimensio
 
 To build up this dataset, we run the following queries, in order:
 
-1.) [creating_top_organizations.sql](sql/creating_top_organizations.sql)
+1.) [creating_grid_ai_pubs.sql](sql/creating_grid_ai_pubs.sql)
 
-2.) [selecting_ai_dimensions_publication_ids_top_organizations.sql](sql/selecting_ai_dimensions_publication_ids_top_organizations.sql)
+2.) [creating_top_organizations.sql](sql/creating_top_organizations.sql)
 
-3.) [selecting_abstracts.sql](sql/selecting_abstracts.sql)
+3.) [selecting_ai_dimensions_publication_ids_top_organizations.sql](sql/selecting_ai_dimensions_publication_ids_top_organizations.sql)
 
-4.) [creating_coauthors_publication_table.sql](sql/creating_coauthors_publication_table.sql)
+4.) [selecting_abstracts.sql](sql/selecting_abstracts.sql)
+
+5.) [creating_coauthors_publication_table.sql](sql/creating_coauthors_publication_table.sql)
 
 # Building Topic Model
 

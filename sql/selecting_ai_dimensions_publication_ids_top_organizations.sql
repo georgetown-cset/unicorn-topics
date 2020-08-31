@@ -5,6 +5,6 @@ INNER JOIN
 (SELECT * from project_unicorn.top_organizations, UNNEST(Grid_ID) as gridval) as unicorn
 ON papers.grids = unicorn.gridval
 INNER JOIN
-(SELECT ds_id, wos_subject, mag_subject, scibert_hit FROM ai_relevant_papers.definitions_brief_latest) as ai
+(SELECT ds_id, wos_subject, mag_subject, arxiv_scibert_hit FROM project_unicorn.definitions_brief_082120) as ai
 ON papers.id = ai.ds_id
-WHERE scibert_hit=true)
+WHERE arxiv_scibert_hit=true)

@@ -87,7 +87,10 @@ class TopicModel:
         self.df = None
         self.tfidf_vectorizer = TfidfVectorizer(max_df=0.9, min_df=2, max_features=self.num_features,
                                                 stop_words='english')
-        self.tf_vectorizer = CountVectorizer(max_df=0.9, min_df=2, max_features=self.num_features, stop_words='english')
+        self.tf_vectorizer = CountVectorizer(max_df=0.8, min_df=2, max_features=self.num_features, stop_words='english')
+        # self.tf_vectorizer = CountVectorizer(max_df=0.8, min_df=2, stop_words='english', max_features = self.num_features,
+                                             # ngram_range=(1, 2))
+        self.vocab = None
         self.documents_map = {}
         self.document_topics = {}
         self.document_max = defaultdict(float)
@@ -127,8 +130,9 @@ class TopicModel:
         # Create map from preprocessed document string to document id
         for i, doc in enumerate(self.documents):
             self.documents_map[doc] = self.df.iloc[i, 0]  # get the ids
+        print(f"Total Documents: {len(self.documents)}")
 
-    def fit_nmf_model(self):
+    def fit_nmf_model(self, run_number):
         """
         Fit the NMF model. Run if --nmf flag set.
         Once model fit, divide documents by topic, display topic results, and save topics by year.
@@ -141,25 +145,37 @@ class TopicModel:
         nmf_H = nmf_model.components_
         self.divide_documents_by_topic(nmf_H, nmf_W)
         topics_by_year = self.display_topics(nmf_H, nmf_W, tfidf_feature_names)
-        with open("data/intermediate/topics_by_year.pkl", "wb") as file_out:
+        if not os.path.exists(f"data/intermediate/nmf_t_{self.num_topics}_r_{run_number}"):
+            os.mkdir(f"data/intermediate/nmf_t_{self.num_topics}_r_{run_number}")
+        with open(f"data/intermediate/nmf_t_{self.num_topics}_r_{run_number}/topics_by_year.pkl", "wb") as file_out:
             pickle.dump(topics_by_year, file_out)
 
-    def fit_lda_model(self):
+    def fit_lda_model(self, run_number):
         """
         Fit the LDA model. Run if --nmf flag not set.
         Once model fit, divide documents by topic, display topic results, and save topics by year.
         :return:
         """
         tf = self.tf_vectorizer.fit_transform(self.documents)
+        self.vocab = self.tf_vectorizer.get_feature_names()
+        print(f"Total Vocab: {len(self.vocab)}")
         tf_feature_names = self.tf_vectorizer.get_feature_names()
-        lda_model = LatentDirichletAllocation(n_components=self.num_topics, max_iter=5, learning_method='online',
+        lda_model = LatentDirichletAllocation(n_components=self.num_topics, max_iter=150, learning_method='online',
                                               learning_offset=50., random_state=0).fit(tf)
         lda_W = lda_model.transform(tf)
         lda_H = lda_model.components_
+        if not os.path.exists(f"data/intermediate/t_{self.num_topics}_r_{run_number}"):
+            os.mkdir(f"data/intermediate/t_{self.num_topics}_r_{run_number}")
+        with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/lda_H.pkl", "wb") as file_out:
+            pickle.dump(lda_H, file_out)
+        with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/lda_W.pkl", "wb") as file_out:
+            pickle.dump(lda_W, file_out)
         self.divide_documents_by_topic(lda_H, lda_W)
-        topics_by_year = self.display_topics(lda_H, lda_W, tf_feature_names)
-        with open("data/intermediate/topics_by_year.pkl", "wb") as file_out:
+        topics_by_year, top_topics_by_org = self.display_topics(lda_H, lda_W, tf_feature_names)
+        with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/topics_by_year.pkl", "wb") as file_out:
             pickle.dump(topics_by_year, file_out)
+        with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/top_topics_by_org.pkl", "wb") as file_out:
+            pickle.dump(top_topics_by_org, file_out)
 
     def divide_documents_by_topic(self, H, W):
         """
@@ -194,14 +210,18 @@ class TopicModel:
         :return: Paper counts by year for all topicsz
         """
         topics_by_year = {}
+        top_topics_by_org = defaultdict(Counter)
         for topic_idx, topic in enumerate(H):
             print(f"Topic {topic_idx}:")
             print(" ".join([feature_names[i]
                             for i in topic.argsort()[:-self.top_words - 1:-1]]))
             top_doc_indices = np.argsort(W[:, topic_idx])[::-1][0:self.top_documents]
+            top_doc_probabilities = np.sort(W[:, topic_idx])[::-1]
             for doc_index in top_doc_indices:
                 doc_id = self.documents_map[self.documents[doc_index]]
                 print(self.df.loc[self.df.index[self.df["id"] == doc_id][0], "title"])
+            for prob in top_doc_probabilities[:10]:
+                print(prob)
             doc_indices = np.argsort(W[:, topic_idx])[::-1]
             coauthors_count = Counter()
             year_count = Counter()
@@ -215,6 +235,8 @@ class TopicModel:
                     year = self.df.loc[self.df.index[self.df["id"] == doc_id][0], "year"]
                     coauthors_count.update(coauthors)
                     year_count[int(year)] += 1
+            for coauthor in coauthors_count.keys():
+                top_topics_by_org[coauthor][topic_idx] += coauthors_count[coauthor]
             print(f"Total papers in topic: {papers_count}")
             topics_by_year[topic_idx] = sorted(list(year_count.items()))
             print(f"Paper counts by year: {topics_by_year[topic_idx]}")
@@ -226,13 +248,15 @@ class TopicModel:
                 if company in coauthors_count.keys():
                     print(company, coauthors_count[company])
             print("--------------")
-        return topics_by_year
+        return topics_by_year, top_topics_by_org
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("num_topics", type=int,
                         help="The number of topics for the model")
+    parser.add_argument("run_number", type=int,
+                        help="The run number to reference this model by. An integer.")
     parser.add_argument("-w", "--top_words", type=int, help="How many words to print out from each topic",
                         required=False, default=10)
     parser.add_argument("-d", "--top_documents", type=int, help="How many document titles to print out from each topic",
@@ -241,7 +265,7 @@ def main():
                         help="The number of features to use in the model", required=False, default=1000)
     parser.add_argument("-n", "--nmf", action="store_true", help="Set this flag to use NMF instead of LDA")
     args = parser.parse_args()
-    if not args.num_topics:
+    if not args.num_topics or not args.run_number:
         parser.print_help()
     model = TopicModel(args.num_features, args.num_topics, args.top_words, args.top_documents)
     print("Getting data")
@@ -251,10 +275,10 @@ def main():
     print("-----------------")
     if args.nmf:
         print("Fitting NMF Model")
-        model.fit_nmf_model()
+        model.fit_nmf_model(args.run_number)
     else:
         print("Fitting LDA Model")
-        model.fit_lda_model()
+        model.fit_lda_model(args.run_number)
 
 
 if __name__ == "__main__":
