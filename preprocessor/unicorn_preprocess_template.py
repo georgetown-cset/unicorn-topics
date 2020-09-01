@@ -1,5 +1,5 @@
 import apache_beam as beam
-import argparse
+import json
 import re
 
 from apache_beam.options.pipeline_options import PipelineOptions
@@ -48,56 +48,47 @@ class PreprocessorDoFn(beam.DoFn):
         :return: dict
         """
         try:
-            tokens = self.tokenizer_lemmatizer(record["text"])
+            js = json.loads(record)
+            tokens = self.tokenizer_lemmatizer(js["text"])
             return_list = self.clean(tokens)
             preprocessed_text = " ".join(return_list)
-            yield {
-                "id": record["id"],
-                "orig_text": record["text"],
+            yield json.dumps({
+                "id": js["id"],
+                "orig_text": js["text"],
                 "processed_text": preprocessed_text,
                 "success": True,
                 "error_msg": None
-            }
+            })
         except Exception as e:
-            yield {
-                "id": record["id"],
-                "orig_text": record["text"],
+            yield json.dumps({
+                "id": js["id"],
+                "orig_text": js["text"],
                 "processed_text": None,
                 "success": False,
                 "error_msg": str(e)
-            }
+            })
+
+class PreprocessorOptions(PipelineOptions):
+    @classmethod
+    def _add_argparse_args(cls, parser):
+        parser.add_value_provider_argument(
+            "--input_text_prefix",
+            help=("gcs path of data to be processed (e.g. gs://my_bucket/my_subdir/my_file_prefix*. "
+                  "Must be jsonl containing two columns, id and text"))
+        parser.add_value_provider_argument(
+            "--output_text_prefix",
+            help=("prefix of gcs path where processed data should go"))
 
 
-def run_pipeline(input_table, output_table, pipeline_args):
-    output_table_schema = {
-        "fields": [{
-            "name": "id", "type": "STRING", "mode": "REQUIRED"
-        }, {
-            "name": "orig_text", "type": "STRING", "mode": "REQUIRED"
-        }, {
-            "name": "processed_text", "type": "STRING", "mode": "NULLABLE"
-        }, {
-            "name": "success", "type": "BOOLEAN", "mode": "REQUIRED"
-        }, {
-            "name": "error_msg", "type": "STRING", "mode": "NULLABLE"
-        }]
-    }
-    with beam.Pipeline(options=PipelineOptions(pipeline_args)) as p:
-        (p | "Read from BQ" >> beam.io.Read(beam.io.BigQuerySource(input_table))
+def run_pipeline(pipeline_options):
+    preprocessor_options = pipeline_options.view_as(PreprocessorOptions)
+    with beam.Pipeline(options=pipeline_options) as p:
+        (p | "Read from Text" >> beam.io.ReadFromText(preprocessor_options.input_text_prefix)
             | "Preprocessor" >> beam.ParDo(PreprocessorDoFn())
-            | "Write to BQ" >> beam.io.WriteToBigQuery(output_table, schema = output_table_schema,
-                                write_disposition=beam.io.BigQueryDisposition.WRITE_TRUNCATE,
-                                create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED))
+            | "Write to JSON" >> beam.io.WriteToText(preprocessor_options.output_text_prefix, file_name_suffix=".jsonl"))
 
-
+# I don't love having this not protected by a main block but it seems to be needed to run as a template
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input_table",
-                        help="bq table containing data to be processed. Must contain two columns, id and text",
-                        required=True)
-    parser.add_argument("--output_table",
-                        help=("bq table where processed data should go. If this table already exists, "
-                              "this pipeline will overwrite its contents."), required=True)
-    args, pipeline_args = parser.parse_known_args()
+    pipeline_options = PreprocessorOptions()
+    run_pipeline(pipeline_options)
 
-    run_pipeline(args.input_table, args.output_table, pipeline_args)
