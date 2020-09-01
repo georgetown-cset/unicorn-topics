@@ -161,7 +161,9 @@ class TopicModel:
         with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/lda_model.pkl", "wb") as file_out:
             pickle.dump(lda_model, file_out)
         top_topics = lda_model.top_topics(corpus, topn=self.top_words)
+        print("Dividing documents by topic")
         self.divide_documents_by_topic(lda_model, corpus)
+        print("Displaying topics")
         topics_by_year, top_topics_by_org = self.display_topics(top_topics)
         with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/topics_by_year.pkl", "wb") as file_out:
             pickle.dump(topics_by_year, file_out)
