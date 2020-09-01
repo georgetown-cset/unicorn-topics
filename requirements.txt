@@ -52,3 +52,4 @@ tqdm==4.47.0
 urllib3==1.25.9
 wasabi==0.7.1
 zipp==3.1.0
+apache-beam[gcp]
