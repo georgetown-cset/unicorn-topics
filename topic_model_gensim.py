@@ -56,7 +56,7 @@ def sentence_join(sentence_list):
 
 
 def make_bigrams(documents, bigram_mod):
-    return [bigram_mod[document] for document in documents]
+    return [bigram_mod[document.split(" ")] for document in documents]
 
 
 def pipelinize(function, active=True):
@@ -127,15 +127,17 @@ class TopicModel:
             with open("data/intermediate/preprocessed_abstracts.pkl", "rb") as file_in:
                 self.documents = pickle.load(file_in)
         else:
-            self.documents = [value[2] for value in self.df.iloc[0:].values]
-            estimators = [('tokenizer', pipelinize(tokenizer_lemmatizer)), ('preprocessor', pipelinize(preprocessor))]
+            query = """SELECT id, orig_text, processed_text FROM `gcp-cset-projects.tmp.test_unicorn_preproc_output`"""
+            preprocessed = pd.read_gbq(query, project_id='gcp-cset-projects')
+            self.documents = [value[2] for value in preprocessed.iloc[0:].values]
+            # estimators = [('tokenizer', pipelinize(tokenizer_lemmatizer)), ('preprocessor', pipelinize(preprocessor))]
             # ('sentence_join', pipelinize(sentence_join))]
-            pipe = Pipeline(estimators)
+            # pipe = Pipeline(estimators)
             bigram = gensim.models.Phrases(self.documents, min_count=5, threshold=100)
             bigram_mod = gensim.models.phrases.Phraser(bigram)
-            self.documents = pipe.transform(self.documents)
-            with open("data/intermediate/partial_abstracts.pkl", "wb") as file_out:
-                pickle.dump(self.documents, file_out)
+            # self.documents = pipe.transform(self.documents)
+            # with open("data/intermediate/partial_abstracts.pkl", "wb") as file_out:
+            #     pickle.dump(self.documents, file_out)
             self.documents = make_bigrams(self.documents, bigram_mod)
             # Delete the superfluous _ that get added by the bigram maker
             self.documents = [[word for word in text if word != "_"] for text in self.documents]
@@ -159,7 +161,9 @@ class TopicModel:
         with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/lda_model.pkl", "wb") as file_out:
             pickle.dump(lda_model, file_out)
         top_topics = lda_model.top_topics(corpus, topn=self.top_words)
+        print("Dividing documents by topic")
         self.divide_documents_by_topic(lda_model, corpus)
+        print("Displaying topics")
         topics_by_year, top_topics_by_org = self.display_topics(top_topics)
         with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/topics_by_year.pkl", "wb") as file_out:
             pickle.dump(topics_by_year, file_out)
