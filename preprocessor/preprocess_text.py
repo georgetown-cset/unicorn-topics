@@ -12,11 +12,12 @@ class PreprocessorDoFn(beam.DoFn):
 
     def start_bundle(self):
         if self.tokenizer is None:
+            # import must be done here instead of in init to avoid serialization issues
             import spacy
             nlp = spacy.load("en_core_sci_lg", disable=['ner'])
             self.tokenizer = nlp.Defaults.create_tokenizer(nlp)
 
-    def tokenizer_lemmatizer(self, text):
+    def tokenizer_lemmatizer(self, text: str) -> list:
         """
         Uses spacy to tokenize and lemmatize a given string
         :param text: String to tokenize
@@ -28,18 +29,23 @@ class PreprocessorDoFn(beam.DoFn):
         return lemma_list
 
     @staticmethod
-    def clean(tokens):
+    def clean(tokens: list) -> iter:
+        """
+        Removes punctuation and whitespace from a token list.
+        :param tokens: The token list
+        :return: A generator of non-empty cleaned tokens
+        """
         for text in tokens:
             text = re.sub('<[^>]*>', '', text)
             text = re.sub('\W+', '', text.lower())
             if len(text) > 0:
                 yield text
 
-    def process(self, record):
+    def process(self, record: dict) -> dict:
         """
-        Removes punctuation and whitespace from a token list.
-        :param text: Either the token list or the individual token (recursive function)
-        :return: Either the processed token or the full list of tokens
+        Tokenize and clean record text
+        :param record: BQ row containing id and text
+        :return: dict
         """
         try:
             tokens = self.tokenizer_lemmatizer(record["text"])
