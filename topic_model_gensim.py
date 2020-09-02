@@ -151,15 +151,19 @@ class TopicModel:
         print(f"Total Documents: {len(self.documents)}")
 
     def fit_lda_model(self, run_number):
-        self.id2word = corpora.Dictionary(self.documents)
-        self.id2word.filter_extremes(no_below=20, no_above=0.5)
-        corpus = [self.id2word.doc2bow(text) for text in self.documents]
-        lda_model = gensim.models.LdaMulticore(corpus=corpus, id2word=self.id2word, num_topics=self.num_topics,
-                                               random_state=100, chunksize=100, passes=10, per_word_topics=True)
-        if not os.path.exists(f"data/intermediate/t_{self.num_topics}_r_{run_number}"):
-            os.mkdir(f"data/intermediate/t_{self.num_topics}_r_{run_number}")
-        with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/lda_model.pkl", "wb") as file_out:
-            pickle.dump(lda_model, file_out)
+        if os.path.exists(f"data/intermediate/t_{self.num_topics}_r_{run_number}/lda_model.pkl"):
+            with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/lda_model.pkl", "rb") as file_in:
+                lda_model = pickle.load(file_in)
+        else:
+            self.id2word = corpora.Dictionary(self.documents)
+            self.id2word.filter_extremes(no_below=20, no_above=0.5)
+            corpus = [self.id2word.doc2bow(text) for text in self.documents]
+            lda_model = gensim.models.LdaMulticore(corpus=corpus, id2word=self.id2word, num_topics=self.num_topics,
+                                                   random_state=100, chunksize=100, passes=10, per_word_topics=True)
+            if not os.path.exists(f"data/intermediate/t_{self.num_topics}_r_{run_number}"):
+                os.mkdir(f"data/intermediate/t_{self.num_topics}_r_{run_number}")
+            with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/lda_model.pkl", "wb") as file_out:
+                pickle.dump(lda_model, file_out)
         top_topics = lda_model.top_topics(corpus, topn=self.top_words)
         print("Dividing documents by topic")
         self.divide_documents_by_topic(lda_model, corpus)
