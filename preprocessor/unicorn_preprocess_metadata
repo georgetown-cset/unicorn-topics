@@ -1,0 +1,22 @@
+{
+  "description": "A pipeline to preprocess text data as in Project Unicorn.",
+  "name": "Project Unicorn Text Preprocessing",
+  "parameters": [
+    {
+      "regexes": [
+        "^gs:\\/\\/[^\\n\\r]+$"
+      ],
+      "name": "input_text_prefix",
+      "helpText": "GCS path of data to be processed (e.g. gs://my_bucket/my_subdir/my_file_prefix*. Must be jsonl containing two columns, id and text.",
+      "label": "Input Cloud Storage file(s)"
+    },
+    {
+      "regexes": [
+        "^gs:\\/\\/[^\\n\\r]+$"
+      ],
+      "name": "output_text_prefix",
+      "helpText": "Prefix of GCS path where processed data should go.",
+      "label": "Output Cloud Storage file(s)"
+    }
+  ]
+}
