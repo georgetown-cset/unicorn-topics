@@ -196,6 +196,7 @@ class TopicModel:
         # add doc ids back in
         ids = pd.Series(self.df["id"])
         self.document_topics = pd.concat([self.document_topics, ids], axis=1)
+        print(self.document_topics.head(10))
 
     def display_topics(self, top_topics):
         # topic coherence follows the list of topics for every topic in top_topics
@@ -208,28 +209,29 @@ class TopicModel:
             # First val in top_topics is a list of topics of (probablility, word)
             print(" ".join([probability_word_pair[1] for probability_word_pair in topic[0]]))
             topic_papers = self.document_topics[self.document_topics["Dominant_Topic"] == topic_number]
-            for row in range(self.top_documents):
-                print(topic_papers["title"][row])
-            coauthors_count = Counter()
-            year_count = Counter()
-            for row in range(len(topic_papers)):
-                doc_id = topic_papers["id"][row]
-                coauthors = self.df.loc[self.df.index[self.df["id"] == doc_id][0], "coauthors"].split("; ")
-                year = self.df.loc[self.df.index[self.df["id"] == doc_id][0], "year"]
-                coauthors_count.update(coauthors)
-                year_count[int(year)] += 1
-            for coauthor in coauthors_count.keys():
-                top_topics_by_org[coauthor][topic_number] += coauthors_count[coauthor]
-            print(f"Total papers in topic: {len(topic_papers)}")
-            topics_by_year[topic_number] = sorted(list(year_count.items()))
-            print(f"Paper counts by year: {topics_by_year[topic_number]}")
-            for coauthor in coauthors_count.most_common(5):
-                print(coauthor[0], coauthor[1])  # print coauthor and its count in topic
-            print("~~~~~")
-            companies = ["Google", "Amazon", "Apple", "Facebook", "IBM", "Microsoft"]
-            for company in companies:
-                if company in coauthors_count.keys():
-                    print(company, coauthors_count[company])
+            print(topic_papers.head())
+            # for row in range(self.top_documents):
+            #     print(topic_papers["title"][row])
+            # coauthors_count = Counter()
+            # year_count = Counter()
+            # for row in range(len(topic_papers)):
+            #     doc_id = topic_papers["id"][row]
+            #     coauthors = self.df.loc[self.df.index[self.df["id"] == doc_id][0], "coauthors"].split("; ")
+            #     year = self.df.loc[self.df.index[self.df["id"] == doc_id][0], "year"]
+            #     coauthors_count.update(coauthors)
+            #     year_count[int(year)] += 1
+            # for coauthor in coauthors_count.keys():
+            #     top_topics_by_org[coauthor][topic_number] += coauthors_count[coauthor]
+            # print(f"Total papers in topic: {len(topic_papers)}")
+            # topics_by_year[topic_number] = sorted(list(year_count.items()))
+            # print(f"Paper counts by year: {topics_by_year[topic_number]}")
+            # for coauthor in coauthors_count.most_common(5):
+            #     print(coauthor[0], coauthor[1])  # print coauthor and its count in topic
+            # print("~~~~~")
+            # companies = ["Google", "Amazon", "Apple", "Facebook", "IBM", "Microsoft"]
+            # for company in companies:
+            #     if company in coauthors_count.keys():
+            #         print(company, coauthors_count[company])
             print("--------------")
         return topics_by_year, top_topics_by_org
 
