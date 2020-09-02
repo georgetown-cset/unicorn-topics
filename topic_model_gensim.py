@@ -166,7 +166,11 @@ class TopicModel:
                 pickle.dump(lda_model, file_out)
         top_topics = lda_model.top_topics(corpus, topn=self.top_words)
         print("Dividing documents by topic")
-        self.divide_documents_by_topic(lda_model, corpus)
+        if not os.path.exists(f"data/intermediate/t_{self.num_topics}_r_{run_number}/document_topics.pkl"):
+            self.divide_documents_by_topic(lda_model, corpus, run_number)
+        else:
+            with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/document_topics.pkl", "rb") as file_in:
+                self.document_topics = pickle.load(file_in)
         print("Displaying topics")
         topics_by_year, top_topics_by_org = self.display_topics(top_topics)
         with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/topics_by_year.pkl", "wb") as file_out:
@@ -174,7 +178,7 @@ class TopicModel:
         with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/top_topics_by_org.pkl", "wb") as file_out:
             pickle.dump(top_topics_by_org, file_out)
 
-    def divide_documents_by_topic(self, lda_model, corpus):
+    def divide_documents_by_topic(self, lda_model, corpus, run_number):
         self.document_topics = pd.DataFrame()
         for i, row_list in enumerate(lda_model[corpus]):
             row = row_list[0] if lda_model.per_word_topics else row_list
@@ -196,7 +200,8 @@ class TopicModel:
         # add doc ids back in
         ids = pd.Series(self.df["id"])
         self.document_topics = pd.concat([self.document_topics, ids], axis=1)
-        print(self.document_topics.head(10))
+        with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/document_topics.pkl", "wb") as file_out:
+            pickle.dump(self.document_topics, file_out)
 
     def display_topics(self, top_topics):
         # topic coherence follows the list of topics for every topic in top_topics
@@ -209,7 +214,7 @@ class TopicModel:
             # First val in top_topics is a list of topics of (probablility, word)
             print(" ".join([probability_word_pair[1] for probability_word_pair in topic[0]]))
             topic_papers = self.document_topics[self.document_topics["Dominant_Topic"] == topic_number]
-            print(topic_papers.head())
+            print(topic_papers["title"].head(self.top_documents))
             # for row in range(self.top_documents):
             #     print(topic_papers["title"][row])
             # coauthors_count = Counter()
