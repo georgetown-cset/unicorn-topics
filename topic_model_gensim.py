@@ -8,6 +8,7 @@ import scispacy
 import pickle
 import gensim
 import gensim.corpora as corpora
+from gensim.models import CoherenceModel
 from sklearn.preprocessing import FunctionTransformer
 from sklearn.pipeline import Pipeline
 from collections import Counter, defaultdict
@@ -159,11 +160,20 @@ class TopicModel:
                 lda_model = pickle.load(file_in)
         else:
             lda_model = gensim.models.LdaMulticore(corpus=corpus, id2word=self.id2word, num_topics=self.num_topics,
-                                                   random_state=100, chunksize=100, passes=10, per_word_topics=True)
+                                                   random_state=100, chunksize=100, passes=20,
+                                                   per_word_topics=True, minimum_probability=0)
             if not os.path.exists(f"data/intermediate/t_{self.num_topics}_r_{run_number}"):
                 os.mkdir(f"data/intermediate/t_{self.num_topics}_r_{run_number}")
             with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/lda_model.pkl", "wb") as file_out:
                 pickle.dump(lda_model, file_out)
+        coherence_model_lda = CoherenceModel(model=lda_model, texts=self.documents, dictionary=self.id2word,
+                                             coherence='c_v')
+        coherence_lda = coherence_model_lda.get_coherence()
+        print(f"Coherence Score c_v: {coherence_lda}")
+        coherence_model_lda = CoherenceModel(model=lda_model, texts=self.documents, dictionary=self.id2word,
+                                             coherence='u_mass')
+        coherence_lda = coherence_model_lda.get_coherence()
+        print(f"Coherence Score u_mass: {coherence_lda}")
         top_topics = lda_model.top_topics(corpus, topn=self.top_words)
         print("Dividing documents by topic")
         if not os.path.exists(f"data/intermediate/t_{self.num_topics}_r_{run_number}/document_topics.pkl"):
@@ -205,10 +215,10 @@ class TopicModel:
 
     def display_topics(self, top_topics):
         # topic coherence follows the list of topics for every topic in top_topics
-        average_topic_coherence = sum([t[1] for t in top_topics])
+        average_topic_coherence = sum([t[1] for t in top_topics]) / self.num_topics
         topics_by_year = {}
         top_topics_by_org = defaultdict(Counter)
-        print(f"Average topic coherence: {average_topic_coherence}")
+        print(f"Average u_mass topic coherence: {average_topic_coherence}")
         for topic_number, topic in enumerate(top_topics):
             print(f"Topic {topic_number}, topic coherence {topic[1]}")
             # First val in top_topics is a list of topics of (probablility, word)
@@ -237,7 +247,7 @@ class TopicModel:
             # for company in companies:
             #     if company in coauthors_count.keys():
             #         print(company, coauthors_count[company])
-            print("--------------")
+            # print("--------------")
         return topics_by_year, top_topics_by_org
 
 
