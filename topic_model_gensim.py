@@ -225,7 +225,7 @@ class TopicModel:
             print(" ".join([probability_word_pair[1] for probability_word_pair in topic[0]]))
             topic_papers = self.document_topics[self.document_topics["Dominant_Topic"] == topic_number]
             print(topic_papers["title"].head(self.top_documents))
-            for row in range(self.top_documents):
+            for row in range(len(self.top_documents)):
                 print(topic_papers["title"][row])
             coauthors_count = Counter()
             year_count = Counter()
