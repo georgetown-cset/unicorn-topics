@@ -77,7 +77,7 @@ class PreprocessorOptions(PipelineOptions):
                   "Must be jsonl containing two columns, id and text"))
         parser.add_value_provider_argument(
             "--output_text_prefix",
-            help=("prefix of gcs path where processed data should go"))
+            help="prefix of gcs path where processed data should go")
 
 
 def run_pipeline(pipeline_options):
@@ -87,7 +87,6 @@ def run_pipeline(pipeline_options):
             | "Preprocessor" >> beam.ParDo(PreprocessorDoFn())
             | "Write to JSON" >> beam.io.WriteToText(preprocessor_options.output_text_prefix, file_name_suffix=".jsonl"))
 
-# I don't love having this not protected by a main block but it seems to be needed to run as a template
 if __name__ == "__main__":
     pipeline_options = PreprocessorOptions()
     run_pipeline(pipeline_options)
