@@ -152,7 +152,7 @@ class TopicModel:
         #     self.documents_map[doc] = self.df.iloc[i, 0]  # get the ids
         print(f"Total Documents: {len(self.documents)}")
 
-    def fit_lda_model(self, run_number):
+    def fit_lda_model(self):
         self.id2word = corpora.Dictionary(self.documents)
         self.id2word.filter_extremes(no_below=20, no_above=0.5)
         corpus = [self.id2word.doc2bow(text) for text in self.documents]
