@@ -158,6 +158,7 @@ class TopicModel:
         corpus = [self.id2word.doc2bow(text) for text in self.documents]
         coherence_c_v = []
         coherence_u_mass = []
+        print("Fitting models")
         for num_topics in range(self.min_topics, self.max_topics, self.step):
             lda_model = gensim.models.LdaMulticore(corpus=corpus, id2word=self.id2word, num_topics=num_topics,
                                                    random_state=100, chunksize=100, passes=20,
@@ -168,7 +169,9 @@ class TopicModel:
                 pickle.dump(lda_model, file_out)
             coherence_model_lda = CoherenceModel(model=lda_model, texts=self.documents, dictionary=self.id2word,
                                              coherence='c_v')
-            coherence_c_v.append(coherence_model_lda.get_coherence())
+            coherence = coherence_model_lda.get_coherence()
+            print(f"Topic {num_topics} coherence: {coherence}")
+            coherence_c_v.append(coherence)
             coherence_model_lda = CoherenceModel(model=lda_model, texts=self.documents, dictionary=self.id2word,
                                              coherence='u_mass')
             coherence_u_mass.append(coherence_model_lda.get_coherence())
@@ -187,11 +190,11 @@ class TopicModel:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("min_topics", type=int, default=40,
+    parser.add_argument("min_topics", type=int, default=40, required=False,
                         help="The minimum number of topics for the model")
-    parser.add_argument("max_topics", type=int, default=90,
+    parser.add_argument("max_topics", type=int, default=90, required=False,
                         help="The maximum number of topics for the model")
-    parser.add_argument("topics_step", type=int, default=5,
+    parser.add_argument("topics_step", type=int, default=5, required=False,
                         help="The number of topics for the model")
     args = parser.parse_args()
     model = TopicModel(args.min_topics, args.max_topics, args.topics_step)
