@@ -190,11 +190,11 @@ class TopicModel:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("min_topics", type=int, default=40, required=False,
+    parser.add_argument("-m", "--min_topics", type=int, default=40, required=False,
                         help="The minimum number of topics for the model")
-    parser.add_argument("max_topics", type=int, default=90, required=False,
+    parser.add_argument("-x", "--max_topics", type=int, default=90, required=False,
                         help="The maximum number of topics for the model")
-    parser.add_argument("topics_step", type=int, default=5, required=False,
+    parser.add_argument("-s", "--topics_step", type=int, default=5, required=False,
                         help="The number of topics for the model")
     args = parser.parse_args()
     model = TopicModel(args.min_topics, args.max_topics, args.topics_step)
