@@ -160,7 +160,7 @@ class TopicModel:
                 lda_model = pickle.load(file_in)
         else:
             lda_model = gensim.models.LdaMulticore(corpus=corpus, id2word=self.id2word, num_topics=self.num_topics,
-                                                   random_state=100, chunksize=100, passes=20,
+                                                   random_state=100, chunksize=100, passes=20, workers=31,
                                                    per_word_topics=True, minimum_probability=0)
             if not os.path.exists(f"data/intermediate/t_{self.num_topics}_r_{run_number}"):
                 os.mkdir(f"data/intermediate/t_{self.num_topics}_r_{run_number}")
