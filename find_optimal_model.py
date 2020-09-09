@@ -177,13 +177,13 @@ class TopicModel:
             coherence_u_mass.append(coherence_model_lda.get_coherence())
         return coherence_c_v, coherence_u_mass
 
-    def plot_coherence(self, coherence_values):
+    def plot_coherence(self, coherence_values, filename):
         x = range(self.min_topics, self.max_topics, self.step)
         plt.plot(x, coherence_values)
         plt.xlabel("Num Topics")
         plt.ylabel("Coherence Score")
         plt.legend(("coherence_values"), loc="best")
-        plt.show()
+        plt.savefig(filename)
 
 
 
@@ -205,8 +205,8 @@ def main():
     print("-----------------")
     print("Fitting LDA Model")
     coherence_c_v, coherence_u_mass = model.fit_lda_model()
-    model.plot_coherence(coherence_u_mass)
-    model.plot_coherence(coherence_c_v)
+    model.plot_coherence(coherence_u_mass, "coherence_u_mass.png")
+    model.plot_coherence(coherence_c_v, "coherence_c_v.png")
 
 
 if __name__ == "__main__":
