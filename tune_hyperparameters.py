@@ -179,7 +179,7 @@ class TopicModel:
                                              dictionary=self.id2word, coherence='c_v')
                         coherence = coherence_model_lda.get_coherence()
                         print(f"Topic {num_topics}, alpha {a} eta {b} corpus {corpus_titles[i]} coherence: {coherence}")
-                        model_results['Validation_Set'].append(corpus_titles[i])
+                        model_results['Validation_set'].append(corpus_titles[i])
                         model_results['Topics'].append(num_topics)
                         model_results['Alpha'].append(a)
                         model_results['Beta'].append(b)
