@@ -158,7 +158,7 @@ class TopicModel:
         alpha.append("symmetric")
         beta = copy.deepcopy(alpha)
         alpha.append("asymmetric")
-        corpus_sets = [gensim.utils.ClippedCorpus(corpus, len(corpus)*0.75), corpus]
+        corpus_sets = [gensim.utils.ClippedCorpus(corpus, int(len(corpus)*0.75)), corpus]
         corpus_titles = ["75% corpus", "100% corpus"]
         model_results = {"Validation_set": [], "Topics": [], "Alpha": [], "Beta": [], "Coherence": []}
         print("Fitting models")
