@@ -155,21 +155,21 @@ class TopicModel:
         self.id2word = corpora.Dictionary(self.documents)
         self.id2word.filter_extremes(no_below=20, no_above=0.5)
         corpus = [self.id2word.doc2bow(text) for text in self.documents]
-        if os.path.exists(f"data/intermediate/t_{self.num_topics}_r_{run_number}/lda_model.pkl"):
-            with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/lda_model.pkl", "rb") as file_in:
+        if os.path.exists(f"data/intermediate/hyperparameter_testing_40_passes/lda_60_topicssymmetric_alpha_0.7000000000000001_eta.pkl"):
+            with open(f"data/intermediate/hyperparameter_testing_40_passes/lda_60_topicssymmetric_alpha_0.7000000000000001_eta.pkl", "rb") as file_in:
                 lda_model = pickle.load(file_in)
         else:
             lda_model = gensim.models.LdaMulticore(corpus=corpus, id2word=self.id2word, num_topics=self.num_topics,
-                                                   random_state=100, chunksize=100, passes=20, workers=31,
+                                                   random_state=100, chunksize=100, passes=40,
                                                    per_word_topics=True, minimum_probability=0)
             if not os.path.exists(f"data/intermediate/t_{self.num_topics}_r_{run_number}"):
                 os.mkdir(f"data/intermediate/t_{self.num_topics}_r_{run_number}")
             with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/lda_model.pkl", "wb") as file_out:
                 pickle.dump(lda_model, file_out)
-        coherence_model_lda = CoherenceModel(model=lda_model, texts=self.documents, dictionary=self.id2word,
-                                             coherence='c_v')
-        coherence_lda = coherence_model_lda.get_coherence()
-        print(f"Coherence Score c_v: {coherence_lda}")
+        # coherence_model_lda = CoherenceModel(model=lda_model, texts=self.documents, dictionary=self.id2word,
+        #                                      coherence='c_v')
+        # coherence_lda = coherence_model_lda.get_coherence()
+        # print(f"Coherence Score c_v: {coherence_lda}")
         coherence_model_lda = CoherenceModel(model=lda_model, texts=self.documents, dictionary=self.id2word,
                                              coherence='u_mass')
         coherence_lda = coherence_model_lda.get_coherence()
