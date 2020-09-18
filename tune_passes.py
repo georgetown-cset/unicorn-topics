@@ -177,11 +177,12 @@ class TopicModel:
                         coherence_model_lda = CoherenceModel(model=lda_model, texts=self.documents,
                                              dictionary=self.id2word, coherence='c_v')
                         coherence = coherence_model_lda.get_coherence()
-                        print(f"Topic {num_topics}, alpha {a} eta {b} corpus {corpus_titles[i]} coherence: {coherence}")
+                        print(f"Topic {num_topics}, passes {p} chunksize {c} corpus {corpus_titles[i]} "
+                              f"coherence: {coherence}")
                         model_results['Validation_set'].append(corpus_titles[i])
                         model_results['Topics'].append(num_topics)
-                        model_results['Alpha'].append(a)
-                        model_results['Beta'].append(b)
+                        model_results['Passes'].append(p)
+                        model_results['Chunksize'].append(c)
                         model_results['Coherence'].append(coherence)
         # coherence_model_lda = CoherenceModel(model=lda_model, texts=self.documents, dictionary=self.id2word,
         #                                  coherence='u_mass')
