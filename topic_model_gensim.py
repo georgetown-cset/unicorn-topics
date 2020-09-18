@@ -210,8 +210,13 @@ class TopicModel:
         # add doc ids back in
         ids = pd.Series(self.df["id"])
         self.document_topics = pd.concat([self.document_topics, ids], axis=1)
-        with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/document_topics.pkl", "wb") as file_out:
-            pickle.dump(self.document_topics, file_out)
+        if not os.path.exists(f"data/intermediate/t_{self.num_topics}_r_{run_number}"):
+            os.mkdir(f"data/intermediate/t_{self.num_topics}_r_{run_number}")
+        try:
+            with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/document_topics.pkl", "wb") as file_out:
+                pickle.dump(self.document_topics, file_out)
+        except FileNotFoundError:
+            pass
 
     def display_topics(self, top_topics):
         # topic coherence follows the list of topics for every topic in top_topics
