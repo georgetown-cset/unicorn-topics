@@ -154,25 +154,24 @@ class TopicModel:
         self.id2word = corpora.Dictionary(self.documents)
         self.id2word.filter_extremes(no_below=20, no_above=0.5)
         corpus = [self.id2word.doc2bow(text) for text in self.documents]
-        alpha = list(np.arange(0.1, 1, 0.3))
-        alpha.append("symmetric")
-        beta = copy.deepcopy(alpha)
-        alpha.append("asymmetric")
+        passes = [40, 50, 60, 70, 80]
+        chunksize = [100, 500, 1000]
         corpus_sets = [gensim.utils.ClippedCorpus(corpus, int(len(corpus)*0.75)), corpus]
         corpus_titles = ["75% corpus", "100% corpus"]
         model_results = {"Validation_set": [], "Topics": [], "Alpha": [], "Beta": [], "Coherence": []}
         print("Fitting models")
         for i, corpus_set in enumerate(corpus_sets):
             for num_topics in self.topics_to_test:
-                for a in alpha:
-                    for b in beta:
-                        lda_model = gensim.models.LdaMulticore(corpus=corpus_set, id2word=self.id2word, alpha=a,
-                                                   random_state=100, chunksize=100, passes=20, num_topics=num_topics,
-                                                   per_word_topics=True, minimum_probability=0, eta=b)
+                for p in passes:
+                    for c in chunksize:
+                        lda_model = gensim.models.LdaMulticore(corpus=corpus_set, id2word=self.id2word,
+                                                               alpha="symmetric", random_state=100, chunksize=c,
+                                                               passes=p, num_topics=num_topics, per_word_topics=True,
+                                                               minimum_probability=0, eta=0.7000000000000001)
                         if i == 1: # we only want to save the model if it's a model on the whole corpus
-                            if not os.path.exists(f"data/intermediate/hyperparameter_testing"):
-                                os.mkdir(f"data/intermediate/hyperparameter_testing")
-                            with open(f"data/intermediate/hyperparameter_testing/lda_{num_topics}_"
+                            if not os.path.exists(f"data/intermediate/passes_testing"):
+                                os.mkdir(f"data/intermediate/passes_testing")
+                            with open(f"data/intermediate/passes_testing/lda_{num_topics}_"
                                       f"topics{a}_alpha_{b}_eta.pkl", "wb") as file_out:
                                 pickle.dump(lda_model, file_out)
                         coherence_model_lda = CoherenceModel(model=lda_model, texts=self.documents,
@@ -187,7 +186,7 @@ class TopicModel:
         # coherence_model_lda = CoherenceModel(model=lda_model, texts=self.documents, dictionary=self.id2word,
         #                                  coherence='u_mass')
         # coherence_u_mass.append(coherence_model_lda.get_coherence())
-        pd.DataFrame(model_results).to_csv("hyperparamter_tuning_results.csv", index=False)
+        pd.DataFrame(model_results).to_csv("passes_tuning_results.csv", index=False)
 
 def main():
     parser = argparse.ArgumentParser()
