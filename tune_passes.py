@@ -158,7 +158,7 @@ class TopicModel:
         chunksize = [100, 500, 1000]
         corpus_sets = [gensim.utils.ClippedCorpus(corpus, int(len(corpus)*0.75)), corpus]
         corpus_titles = ["75% corpus", "100% corpus"]
-        model_results = {"Validation_set": [], "Topics": [], "Alpha": [], "Beta": [], "Coherence": []}
+        model_results = {"Validation_set": [], "Topics": [], "Passes": [], "Chunksize": [], "Coherence": []}
         print("Fitting models")
         for i, corpus_set in enumerate(corpus_sets):
             for num_topics in self.topics_to_test:
