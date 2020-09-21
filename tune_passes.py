@@ -172,7 +172,7 @@ class TopicModel:
                             if not os.path.exists(f"data/intermediate/passes_testing"):
                                 os.mkdir(f"data/intermediate/passes_testing")
                             with open(f"data/intermediate/passes_testing/lda_{num_topics}_"
-                                      f"topics{a}_alpha_{b}_eta.pkl", "wb") as file_out:
+                                      f"topics{p}_passes_{c}_chunksize.pkl", "wb") as file_out:
                                 pickle.dump(lda_model, file_out)
                         coherence_model_lda = CoherenceModel(model=lda_model, texts=self.documents,
                                              dictionary=self.id2word, coherence='c_v')
