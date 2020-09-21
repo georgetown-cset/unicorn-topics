@@ -154,8 +154,8 @@ class TopicModel:
         self.id2word = corpora.Dictionary(self.documents)
         self.id2word.filter_extremes(no_below=20, no_above=0.5)
         corpus = [self.id2word.doc2bow(text) for text in self.documents]
-        passes = [40, 50, 60, 70, 80]
-        chunksize = [100, 500, 1000]
+        passes = [50, 60]
+        chunksize = [25, 50, 100, 150, 200]
         corpus_sets = [gensim.utils.ClippedCorpus(corpus, int(len(corpus)*0.75)), corpus]
         corpus_titles = ["75% corpus", "100% corpus"]
         model_results = {"Validation_set": [], "Topics": [], "Passes": [], "Chunksize": [], "Coherence": []}
