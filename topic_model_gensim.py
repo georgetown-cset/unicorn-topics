@@ -14,10 +14,6 @@ nlp = spacy.load("en_core_sci_lg", disable=['ner'])
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 
-# def make_bigrams(documents, bigram_mod):
-#     return [bigram_mod[document.split(" ")] for document in documents]
-
-
 class PrimaryTopicModel(TopicModel):
 
     def __init__(self, num_topics, top_words, top_documents):
@@ -31,12 +27,6 @@ class PrimaryTopicModel(TopicModel):
         self.num_topics = num_topics
         self.top_words = top_words
         self.top_documents = top_documents
-        # self.documents = []
-        # self.df = None
-        # self.vocab = None
-        # self.documents_map = {}
-        # self.document_topics = None
-        # self.id_to_word = None
 
     def get_data(self):
         """
