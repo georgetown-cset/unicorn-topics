@@ -5,65 +5,34 @@ to compare the agendas of these labs to the agendas of top academic institutions
 
 This repository contains the following:
 
-1.) Code to build an LDA- or NMF-based topic model of scientific
+1.) Code to build an LDA-based topic model of scientific
 literature data from 100 universities with top publishing totals
 in AI, as well as the "big six" US tech companies (Google, Apple,
-Amazon, Facebook, Microsoft, and IBM).
+Amazon, Facebook, Microsoft, and IBM). The primary model code is
+[topic_model_gensim.py](topic_model_gensim.py) and the foundational code for all the model
+runs is in [generic_topic_model.py](generic_topic_model.py).
 
-2.) Code to create visualizations of the resulting topic models.
+2.) Code to optimize this model, tuning for the best number of topics ([find_optimal_topic_number.py](find_optimal_topic_number.py)),
+hyperparameters ([tune_hyperparameters.py](tune_hyperparameters.py)), and number of passes ([tune_passes.py](tune_passes.py)). This code also includes
+a separate file to calculate model perplexity ([calculate_perplexity.py](calculate_perplexity.py)).
 
-3.) SQL queries to create the dataset of scientific literature used as input to the topic model.
+3.) Code to create visualizations ([plot_topics_by_year.py](plot_topics_by_year.py)) and drill-downs ([top_five_topics.py](top_five_topics.py)) of the resulting topic models.
 
-# Building Dataset
+4.) SQL queries to create the dataset of scientific literature used as input to the topic model, found in [sql](sql).
 
-The ultimate dataset used in this project is `project_unicorn.coauthors_dimensions_publications_with_abstracts`
+5.) Code to run the preprocessing of the data used in the model, found in [preprocessor](preprocessor). See
+[README](preprocessor/README.md) contained within for details.
 
-To build up this dataset, we run the following queries, in order:
+6.) Obsolete code used to create and analyze a previous version of the model, found in [obsolete](obsolete). See
+[README](obsolete/README.md).
 
-1.) [creating_grid_ai_pubs.sql](sql/creating_grid_ai_pubs.sql)
+For details on how to build the dataset and run the code contained within, please see [technical_documentation.md](technical_documentation.md)
 
-2.) [creating_top_organizations.sql](sql/creating_top_organizations.sql)
-
-3.) [selecting_ai_dimensions_publication_ids_top_organizations.sql](sql/selecting_ai_dimensions_publication_ids_top_organizations.sql)
-
-4.) [selecting_abstracts.sql](sql/selecting_abstracts.sql)
-
-5.) [creating_coauthors_publication_table.sql](sql/creating_coauthors_publication_table.sql)
-
-# Building Topic Model
-
-To run this code:
-
-1.) Make a new virtualenv:
- 
- ```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-2.) Set up spacy and your other requirements:
-
-```
-pip3 install spacy==2.3.2
-pip3 install scispacy==0.2.5
-pip3 install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.2.5/en_core_sci_lg-0.2.5.tar.gz
-pip3 install -r requirements.txt
-```
-
-3.) `export GOOGLE_APPLICATION_CREDENTIALS=<path to your credentials>` - a service account json.
-You should have at least BQ reader permissions
-
-4.) If you wish to use preloaded data (pickle files) for the datasets
-or the preprocessed data, put that data into `data/intermediate`. The dataset file
-should be named `documents.okl` and the preprocessed data file should be
-named `preprocessed_abstracts.pkl`.
-
-5.) Preloaded data should also be used to run `plot_topic_by_year.py`. This data should
-also be stored in `data/intermediate` and should be named `topics_by_year.pkl`
+## Building Topic Model
 
 Run topic model as follows:
 
-`python3 topic_model.py num_topics [-w TOP_WORDS] [-d TOP_DOCUMENTS] [-f NUM_FEATURES] [-n|--nmf]`
+`python3 topic_model.py num_topics run_number data_directory [-w TOP_WORDS] [-d TOP_DOCUMENTS] [-f NUM_FEATURES] [-n|--nmf]`
 
 The current defaults are:
 - 10 top words
@@ -71,8 +40,8 @@ The current defaults are:
 - 1000 features
 - LDA rather than NMF
 
-The current recommended number of topics is 80.
+The current recommended number of topics is 60.
 
 So a sample run with current defaults but 15 top words would look like the following:
 
-`python3 topic_model.py 80 -w 15`
+`python3 topic_model.py 60 1 data/intermediate -w 15`

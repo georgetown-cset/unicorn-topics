@@ -8,7 +8,6 @@ import argparse
 import os
 import re
 import spacy
-import scispacy
 import pickle
 from collections import Counter, defaultdict
 
@@ -71,7 +70,7 @@ def pipelinize(function, active=True):
 
 class TopicModel:
 
-    def __init__(self, num_features, num_topics, top_words, top_documents):
+    def __init__(self, num_features, num_topics, top_words, top_documents, data_dir):
         """
         Initializes the topic model
         :param num_features: Number of model features for training
@@ -84,12 +83,11 @@ class TopicModel:
         self.top_words = top_words
         self.top_documents = top_documents
         self.documents = []
+        self.data_dir = data_dir
         self.df = None
         self.tfidf_vectorizer = TfidfVectorizer(max_df=0.9, min_df=2, max_features=self.num_features,
                                                 stop_words='english')
         self.tf_vectorizer = CountVectorizer(max_df=0.8, min_df=2, max_features=self.num_features, stop_words='english')
-        # self.tf_vectorizer = CountVectorizer(max_df=0.8, min_df=2, stop_words='english', max_features = self.num_features,
-                                             # ngram_range=(1, 2))
         self.vocab = None
         self.documents_map = {}
         self.document_topics = {}
@@ -101,13 +99,13 @@ class TopicModel:
         Data either comes from BQ or is loaded from pickle if it's been previously pulled.
         :return:
         """
-        if os.path.exists("data/intermediate/documents.pkl"):
-            self.df = pd.read_pickle("data/intermediate/documents.pkl")
+        if os.path.exists(os.path.join(self.data_dir, "documents.pkl")):
+            self.df = pd.read_pickle(os.path.join(self.data_dir, "documents.pkl"))
         else:
             query = """SELECT id, title, CONCAT(title, '. ', abstract) as texts, coauthors, `year` FROM 
                 project_unicorn.coauthors_dimensions_publications_with_abstracts"""
             self.df = pd.read_gbq(query, project_id='gcp-cset-projects')
-            pd.to_pickle(self.df, "data/intermediate/documents.pkl")
+            pd.to_pickle(self.df, os.path.join(self.data_dir, "documents.pkl"))
 
     def preprocess_data(self):
         """
@@ -115,8 +113,8 @@ class TopicModel:
         have already been run, load preprocessed data from pickle.
         :return:
         """
-        if os.path.exists("data/intermediate/preprocessed_abstracts.pkl"):
-            with open("data/intermediate/preprocessed_abstracts.pkl", "rb") as file_in:
+        if os.path.exists(os.path.join(self.data_dir, "preprocessed_abstracts.pkl")):
+            with open(os.path.join(self.data_dir, "preprocessed_abstracts.pkl"), "rb") as file_in:
                 self.documents = pickle.load(file_in)
         else:
             self.documents = [value[2] for value in self.df.iloc[0:].values]
@@ -124,7 +122,7 @@ class TopicModel:
                           ('sentence_join', pipelinize(sentence_join))]
             pipe = Pipeline(estimators)
             self.documents = pipe.transform(self.documents)
-            with open("data/intermediate/preprocessed_abstracts.pkl", "wb") as file_out:
+            with open(os.path.join(self.data_dir, "preprocessed_abstracts.pkl"), "wb") as file_out:
                 pickle.dump(self.documents, file_out)
         assert len(self.documents) == len(self.df)
         # Create map from preprocessed document string to document id
@@ -257,6 +255,7 @@ def main():
                         help="The number of topics for the model")
     parser.add_argument("run_number", type=int,
                         help="The run number to reference this model by. An integer.")
+    parser.add_argument("data_dir", type=str, help="Directory where model info is stored.")
     parser.add_argument("-w", "--top_words", type=int, help="How many words to print out from each topic",
                         required=False, default=10)
     parser.add_argument("-d", "--top_documents", type=int, help="How many document titles to print out from each topic",
@@ -265,9 +264,9 @@ def main():
                         help="The number of features to use in the model", required=False, default=1000)
     parser.add_argument("-n", "--nmf", action="store_true", help="Set this flag to use NMF instead of LDA")
     args = parser.parse_args()
-    if not args.num_topics or not args.run_number:
+    if not args.num_topics or not args.run_number or not args.data_dir:
         parser.print_help()
-    model = TopicModel(args.num_features, args.num_topics, args.top_words, args.top_documents)
+    model = TopicModel(args.num_features, args.num_topics, args.top_words, args.top_documents, args.data_dir)
     print("Getting data")
     model.get_data()
     print("Preprocessing data")

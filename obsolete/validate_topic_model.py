@@ -6,6 +6,16 @@ import numpy as np
 
 
 def calculate_document_ratio(H, W, topic_count, num_documents):
+    """
+    Calculating the document ratio, based on metrics in the paper
+    "Latent Dirichlet Allocation: Stability and Applications toStudies of User-Generated Content"
+    (Koltkov, Koltsova, and Nikolenko).
+    :param H: Model transform returned for LDA
+    :param W: Model components returned for LDA
+    :param topic_count: Number of topics
+    :param num_documents: Number of documents in the model
+    :return:
+    """
     theta_count = 0
     for topic_idx, topic in enumerate(H):
         top_doc_probabilities = np.sort(W[:, topic_idx])[::-1]
@@ -17,7 +27,16 @@ def calculate_document_ratio(H, W, topic_count, num_documents):
     return ratio
 
 
-def calculate_word_ratio(H, W, topic_count, vocab_length):
+def calculate_word_ratio(H, topic_count, vocab_length):
+    """
+    Calculating the word ratio, based on metrics in the paper
+    "Latent Dirichlet Allocation: Stability and Applications toStudies of User-Generated Content"
+    (Koltkov, Koltsova, and Nikolenko).
+    :param H: Model transform returned for LDA
+    :param topic_count: Number of topics
+    :param vocab_length: Number of vocab words included in the model
+    :return:
+    """
     phi_count = 0
     for topic_idx, topic in enumerate(H):
         top_word_probabilities = np.sort(topic)[::-1]
@@ -55,7 +74,7 @@ def main():
     else:
         print("File provided for W features does not exist.")
     print(f"Document ratio: {calculate_document_ratio(H, W, args.topic_count, args.num_documents)}")
-    print(f"Word ratio: {calculate_word_ratio(H, W, args.topic_count, args.vocab_length)}")
+    print(f"Word ratio: {calculate_word_ratio(H, args.topic_count, args.vocab_length)}")
 
 
 if __name__ == "__main__":

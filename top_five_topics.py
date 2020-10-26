@@ -4,8 +4,14 @@ import os
 
 
 def print_topics_by_org(filename, num_topics):
-    if os.path.exists("data/intermediate/top_topics_by_org.pkl"):
-        with open("data/intermediate/top_topics_by_org.pkl", "rb") as file_in:
+    """
+    Print the topics with the most papers in them for each organization (and the number of papers).
+    :param filename: Filename containing top topics by org information.
+    :param num_topics: The number of topics to print per org. Defaults to 5.
+    :return:
+    """
+    if os.path.exists(filename):
+        with open(filename, "rb") as file_in:
             top_topics_by_org = pickle.load(file_in)
     for organization in top_topics_by_org.keys():
         print(f"Organization: {organization}")
@@ -19,7 +25,7 @@ def main():
     parser.add_argument("filename", type=str,
                         help="The name of the pickle file containing topics by organization data.")
     parser.add_argument("-n", "--num-topics", type=int, default=5, required=False,
-                        help="The number of topics to print per organization")
+                        help="The number of topics to print per organization. Defaults to 5.")
     args = parser.parse_args()
     if not args.filename:
         parser.print_help()

@@ -1,11 +1,14 @@
-import numpy as np
-import pandas as pd
 import argparse
 import pickle
-import gensim
 
 
 def calculate_perplexity(lda_model_name, corpus_name):
+    """
+    Calculates the perplexity of a previously saved LDA model.
+    :param lda_model_name: The name of the pickled LDA model file.
+    :param corpus_name: The name of the pickled corpus file used to build the LDA model.
+    :return:
+    """
     with open(corpus_name, "rb") as file_in:
         corpus = pickle.load(file_in)
     with open(lda_model_name, "rb") as file_in:

@@ -2,6 +2,7 @@ import unittest
 import topic_model
 from collections import defaultdict
 import pandas as pd
+import os
 
 
 class TestTopicModel(unittest.TestCase):
@@ -27,7 +28,11 @@ class TestTopicModel(unittest.TestCase):
         self.assertEqual(sentence, ["dog well dog"])
 
     def test_init_topic_model(self):
-        model = topic_model.TopicModel(1000, 3, 2, 3)
+        # Check whether we're running from the subdirectory or not
+        if "obsolete" in os.getcwd():
+            model = topic_model.TopicModel(1000, 3, 2, 3, "../data/intermediate")
+        else:
+            model = topic_model.TopicModel(1000, 3, 2, 3, "data/intermediate")
         self.assertEqual(model.num_features, 1000)
         self.assertEqual(model.num_topics, 3)
         self.assertEqual(model.top_words, 2)
@@ -39,7 +44,10 @@ class TestTopicModel(unittest.TestCase):
         self.assertEqual(model.document_max, defaultdict(float))
 
     def test_get_data(self):
-        model = topic_model.TopicModel(1000, 3, 2, 3)
+        if "obsolete" in os.getcwd():
+            model = topic_model.TopicModel(1000, 3, 2, 3, "../data/intermediate")
+        else:
+            model = topic_model.TopicModel(1000, 3, 2, 3, "data/intermediate")
         model.get_data()
         self.assertIsNotNone(model.df)
         self.assertIsInstance(model.df, pd.core.frame.DataFrame)
