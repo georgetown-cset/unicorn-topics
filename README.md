@@ -16,7 +16,7 @@ runs is in [generic_topic_model.py](generic_topic_model.py).
 hyperparameters ([tune_hyperparameters.py](tune_hyperparameters.py)), and number of passes ([tune_passes.py](tune_passes.py)). This code also includes
 a separate file to calculate model perplexity ([calculate_perplexity.py](calculate_perplexity.py)).
 
-3.) Code to create visualizations ([plot_topics_by_year.py](plot_topics_by_year.py)) and drill-downs ([top_five_topics.py](top_five_topics.py)) of the resulting topic models.
+3.) Code to create visualizations ([plot_topic_by_year.py](plot_topic_by_year.py)) and drill-downs ([top_five_topics.py](top_five_topics.py)) of the resulting topic models.
 
 4.) SQL queries to create the dataset of scientific literature used as input to the topic model, found in [sql](sql).
 

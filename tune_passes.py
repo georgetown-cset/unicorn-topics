@@ -55,6 +55,15 @@ class PassTuner(TopicModel):
         self.id2word = corpora.Dictionary(self.documents)
         self.id2word.filter_extremes(no_below=20, no_above=0.5)
         corpus = [self.id2word.doc2bow(text) for text in self.documents]
+        # To select parameters for chunksize, I started with a wide range
+        # (initial chunksize parameters were [10, 100, 500, 1000, 5000]).
+        # Initial results showed very small chunk sizes were quite bad, and any chunksize much over 100 was also awful
+        # so I narrowed dramatically to tune more carefully.
+        # For passes, I began by using a relatively low number of passes before starting to tune (20) and then
+        # noticed model quality increase when this number went up, trying 30 and then 40. The number of passes
+        # drastically slows down model speed, so I started by only increasing in increments of 10 to see whether
+        # improvement continued. As coherence eventually plateaued and then got worse with more passes, I did not try
+        # oass numbers above 80.
         passes = [40, 50, 60, 70, 80]
         chunksize = [50, 75, 100]
         corpus_sets = [gensim.utils.ClippedCorpus(corpus, int(len(corpus)*0.75)), corpus]

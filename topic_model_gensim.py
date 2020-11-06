@@ -8,7 +8,7 @@ import gensim.corpora as corpora
 from gensim.models import CoherenceModel
 from collections import Counter, defaultdict
 import logging
-from generic_topic_model import TopicModel
+from generic_topic_model import intermediate_path, TopicModel
 
 nlp = spacy.load("en_core_sci_lg", disable=['ner'])
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
@@ -63,9 +63,10 @@ class PrimaryTopicModel(TopicModel):
             lda_model = gensim.models.LdaMulticore(corpus=corpus, id2word=self.id2word, num_topics=self.num_topics,
                                                    random_state=100, chunksize=100, passes=40,
                                                    per_word_topics=True, minimum_probability=0)
-            if not os.path.exists(f"data/intermediate/t_{self.num_topics}_r_{run_number}"):
-                os.mkdir(f"data/intermediate/t_{self.num_topics}_r_{run_number}")
-            with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/lda_model.pkl", "wb") as file_out:
+            if not os.path.exists(os.path.join(intermediate_path, f"t_{self.num_topics}_r_{run_number}")):
+                os.mkdir(os.path.join(intermediate_path, f"t_{self.num_topics}_r_{run_number}"))
+            with open(os.path.join(intermediate_path, f"t_{self.num_topics}_r_{run_number}/lda_model.pkl"), "wb")\
+                    as file_out:
                 pickle.dump(lda_model, file_out)
         coherence_model_lda = CoherenceModel(model=lda_model, texts=self.documents, dictionary=self.id2word,
                                              coherence='c_v')
@@ -77,16 +78,20 @@ class PrimaryTopicModel(TopicModel):
         print(f"Coherence Score u_mass: {coherence_lda}")
         top_topics = lda_model.top_topics(corpus, topn=self.top_words)
         print("Dividing documents by topic")
-        if not os.path.exists(f"data/intermediate/t_{self.num_topics}_r_{run_number}/document_topics.pkl"):
+        if not os.path.exists(os.path.join(intermediate_path,
+                                           f"t_{self.num_topics}_r_{run_number}/document_topics.pkl")):
             self.divide_documents_by_topic(lda_model, corpus, run_number)
         else:
-            with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/document_topics.pkl", "rb") as file_in:
+            with open(os.path.join(intermediate_path, f"t_{self.num_topics}_r_{run_number}/document_topics.pkl"), "rb")\
+                    as file_in:
                 self.document_topics = pickle.load(file_in)
         print("Displaying topics")
         topics_by_year, top_topics_by_org = self.display_topics(top_topics)
-        with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/topics_by_year.pkl", "wb") as file_out:
+        with open(os.path.join(intermediate_path, f"t_{self.num_topics}_r_{run_number}/topics_by_year.pkl"), "wb")\
+                as file_out:
             pickle.dump(topics_by_year, file_out)
-        with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/top_topics_by_org.pkl", "wb") as file_out:
+        with open(os.path.join(intermediate_path, f"t_{self.num_topics}_r_{run_number}/top_topics_by_org.pkl"), "wb")\
+                as file_out:
             pickle.dump(top_topics_by_org, file_out)
 
     def divide_documents_by_topic(self, lda_model, corpus, run_number):
@@ -99,18 +104,19 @@ class PrimaryTopicModel(TopicModel):
         """
         self.document_topics = pd.DataFrame()
         for i, row_list in enumerate(lda_model[corpus]):
+            # One of the options for the model is to select per_word_topics which means model computes a list of most
+            # likely topics for each word sorted in descending order
+            # If we do that then we only want the most likely one!
             row = row_list[0] if lda_model.per_word_topics else row_list
             # Sort by second item in the list
+            # This is the proportion of that topic that the document was assigned
             row = sorted(row, key=lambda x: x[1], reverse=True)
-            for j, (topic_number, prop_topic) in enumerate(row):
-                if j == 0:  # dominant topic
-                    word_props = lda_model.show_topic(topic_number)
-                    topic_keywords = ", ".join([word for word, prop in word_props])
-                    self.document_topics = self.document_topics.append(
-                        pd.Series([int(topic_number), round(prop_topic, 4),
-                                   topic_keywords]), ignore_index=True)
-                else:
-                    break  # not dominant topic
+            dominant_topic = row[0]
+            topic_number, prop_topic = dominant_topic[0], dominant_topic[1]
+            word_props = lda_model.show_topic(topic_number)
+            topic_keywords = ", ".join([word for word, prop in word_props])
+            self.document_topics = self.document_topics.append(pd.Series([int(topic_number), round(prop_topic, 4),
+                           topic_keywords]), ignore_index=True)
         self.document_topics.columns = ['Dominant_Topic', 'Percentage_Contribution', 'Topic_Keywords']
         # Add original titles back in:
         contents = pd.Series(self.df["title"])
@@ -118,10 +124,11 @@ class PrimaryTopicModel(TopicModel):
         # add doc ids back in
         ids = pd.Series(self.df["id"])
         self.document_topics = pd.concat([self.document_topics, ids], axis=1)
-        if not os.path.exists(f"data/intermediate/t_{self.num_topics}_r_{run_number}"):
-            os.mkdir(f"data/intermediate/t_{self.num_topics}_r_{run_number}")
+        if not os.path.exists(os.path.join(intermediate_path, f"t_{self.num_topics}_r_{run_number}")):
+            os.mkdir(os.path.join(intermediate_path, f"t_{self.num_topics}_r_{run_number}"))
         try:
-            with open(f"data/intermediate/t_{self.num_topics}_r_{run_number}/document_topics.pkl", "wb") as file_out:
+            with open(os.path.join(intermediate_path, f"t_{self.num_topics}_r_{run_number}/document_topics.pkl"), "wb")\
+                    as file_out:
                 pickle.dump(self.document_topics, file_out)
         except FileNotFoundError:
             pass

@@ -7,14 +7,19 @@ The dataset used as a source for the LDA documents in the model is `project_unic
 To build up this dataset, we run the following queries, in order:
 
 1.) [creating_grid_ai_pubs.sql](sql/creating_grid_ai_pubs.sql)
+creates `project_unicorn.grid_ai_pubs_052920`
 
 2.) [creating_top_organizations.sql](sql/creating_top_organizations.sql)
+ creates `project_unicorn.top_organizations`
 
 3.) [selecting_ai_dimensions_publication_ids_top_organizations.sql](sql/selecting_ai_dimensions_publication_ids_top_organizations.sql)
+creates `project_unicorn.dimensions_publication_ids_top_organizations_052920`
 
 4.) [selecting_abstracts.sql](sql/selecting_abstracts.sql)
+creates `project_unicorn.dimensions_publications_with_abstracts_top_organizations_052920`
 
 5.) [creating_coauthors_publication_table.sql](sql/creating_coauthors_publication_table.sql)
+creates `project_unicorn.coauthors_dimensions_publications_with_abstracts`
 
 ## Setting Up Workspace
 
@@ -124,7 +129,7 @@ as there is not a full year of data so a decline is expected; if you
 wish to include 2020, the -i flag allows you to undo this.
 
 The data for plotting will be written out by `topic_model_gensim.py`
-into the [data/intermediate](data/intermediate) subdirectory defined by the number of topics
+into the `data/intermediate` subdirectory defined by the number of topics
 and run number you selected. An example run is below:
 
 `python3 plot_topic_by_year.py data/intermediate/t_60_r_1/topics_by_year.pkl 2 5 16 31 42`
@@ -136,7 +141,7 @@ Run `top_five_topics.py` as follows:
 `python3 top_five_topics.py filename [-n num_topics]`
 
 The data for plotting will be written out by `topic_model_gensim.py`
-into the [data/intermediate](data/intermediate) subdirectory defined by the number of topics
+into the `data/intermediate` subdirectory defined by the number of topics
 and run number you selected. An example run is below:
 
 `python3 top_five_topics.py data/intermediate/t_60_r_1/top_topics_by_org.pkl -n 3`
