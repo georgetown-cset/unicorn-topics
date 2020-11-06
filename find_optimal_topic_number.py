@@ -28,22 +28,6 @@ class TopicOptimizer(TopicModel):
         self.max_topics = max_topics
         self.step = step
 
-    def get_data(self):
-        """
-        Acquire data to run the model with.
-        Data either comes from BQ or is loaded from pickle if it's been previously pulled.
-        :return:
-        """
-        super(TopicOptimizer, self).get_data()
-
-    def preprocess_data(self):
-        """
-        Run the preprocessing functions. If the preprocessing functions
-        have already been run, load preprocessed data from pickle.
-        :return:
-        """
-        super(TopicOptimizer, self).preprocess_data()
-
     def fit_lda_model(self):
         """
         Fit a variety of topic models for different numbers of topics. The numbers used will be determined by

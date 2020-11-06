@@ -29,22 +29,6 @@ class PassTuner(TopicModel):
         super().__init__()
         self.topics_to_test = topics_to_test
 
-    def get_data(self):
-        """
-        Acquire data to run the model with.
-        Data either comes from BQ or is loaded from pickle if it's been previously pulled.
-        :return:
-        """
-        super(PassTuner, self).get_data()
-
-    def preprocess_data(self):
-        """
-        Run the preprocessing functions. If the preprocessing functions
-        have already been run, load preprocessed data from pickle.
-        :return:
-        """
-        super(PassTuner, self).preprocess_data()
-
     def fit_lda_model(self):
         """
         Fit a variety of LDA models based on a range of passes and chunksize options.

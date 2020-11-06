@@ -28,22 +28,6 @@ class PrimaryTopicModel(TopicModel):
         self.top_words = top_words
         self.top_documents = top_documents
 
-    def get_data(self):
-        """
-        Acquire data to run the model with.
-        Data either comes from BQ or is loaded from pickle if it's been previously pulled.
-        :return:
-        """
-        super(PrimaryTopicModel, self).get_data()
-
-    def preprocess_data(self):
-        """
-        Run the preprocessing functions. If the preprocessing functions
-        have already been run, load preprocessed data from pickle.
-        :return:
-        """
-        super(PrimaryTopicModel, self).preprocess_data()
-
     def fit_lda_model(self, run_number, model):
         """
         Fit an LDA model to our dictionary, find the top topics and the coherence.
