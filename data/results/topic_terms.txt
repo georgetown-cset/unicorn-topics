@@ -1,0 +1,180 @@
+Topic 1
+system research process application design analysis development technology provide technique
+--------------
+Topic 2
+network neural deep model convolutional layer learn train cnn performance
+--------------
+Topic 3
+problem algorithm function optimization solve constraint solution approach optimal set
+--------------
+Topic 4
+classification classifier vector machine class sample svm accuracy support train
+--------------
+Topic 5
+image resolution noise quality high hyperspectral algorithm spatial patch pixel
+--------------
+Topic 6
+sparse matrix representation kernel space datum dictionary low dimensional structure
+--------------
+Topic 7
+learn train datum learning domain task approach model machine transfer
+--------------
+Topic 8
+time high cost fast real reduce process large computational algorithm
+--------------
+Topic 9
+object visual level scene dataset model attention image hierarchical state
+--------------
+Topic 10
+model distribution probability bayesian gaussian parameter probabilistic datum estimate approach
+--------------
+Topic 11
+algorithm optimization problem search parameter improve performance swarm objective genetic
+--------------
+Topic 12
+robot robotic force design joint manipulator grasp mechanism arm soft
+--------------
+Topic 13
+human visual behavior study effect task perception response find participant
+--------------
+Topic 14
+feature extract local extraction image descriptor texture selection information invariant
+--------------
+Topic 15
+datum cluster algorithm set k data mine dataset pattern time
+--------------
+Topic 16
+segmentation image region segment edge saliency algorithm boundary pixel contour
+--------------
+Topic 17
+control system dynamic controller robot model simulation design wheel stability
+--------------
+Topic 18
+1 2 test 3 score average p study rate respectively
+--------------
+Topic 19
+image ct tissue mri tumor mr cancer ultrasound diagnosis lesion
+--------------
+Topic 20
+3d point shape surface registration cloud model 2d reconstruction match
+--------------
+Topic 21
+human interaction robot user system hand virtual gesture interface interactive
+--------------
+Topic 22
+text semantic knowledge document information event web ontology entity topic
+--------------
+Topic 23
+fuzzy decision rule attribute set make value information weight uncertainty
+--------------
+Topic 24
+prediction model predict regression machine time process forecast tool datum
+--------------
+Topic 25
+reason concept tree structure knowledge theory case logic representation framework
+--------------
+Topic 26
+user social recommendation model service information product online item medium
+--------------
+Topic 27
+robot plan path environment trajectory obstacle navigation autonomous underwater mobile
+--------------
+Topic 28
+similarity metric retrieval distance search query measure rank match code
+--------------
+Topic 29
+remote sense image area water land sar datum change high
+--------------
+Topic 30
+patient clinical medical treatment disease surgery surgical health outcome spinal
+--------------
+Topic 31
+position error measurement system calibration accuracy angle orientation algorithm infrared
+--------------
+Topic 32
+sensor system mobile activity device datum monitor smart sense environment
+--------------
+Topic 33
+vehicle traffic road drive system driver aerial uav autonomous car
+--------------
+Topic 34
+signal component frequency analysis wavelet eeg transform principal decomposition pca
+--------------
+Topic 35
+gait movement walk body limb muscle rehabilitation joint motion human
+--------------
+Topic 36
+cell protein gene cancer drug expression sequence disease biological predict
+--------------
+Topic 37
+detection detect detector false anomaly algorithm rate system alarm positive
+--------------
+Topic 38
+target track filter object algorithm tracking background occlusion move tracker
+--------------
+Topic 39
+video motion temporal sequence frame dynamic time pedestrian spatial crowd
+--------------
+Topic 40
+disease brain ad patient pd cognitive subject alzheimer disorder diagnosis
+--------------
+Topic 41
+label graph supervise node semi instance community link unlabeled structure
+--------------
+Topic 42
+view camera depth image stereo 3d scene vision field capture
+--------------
+Topic 43
+estimation map pose localization estimate indoor d approach landmark visual
+--------------
+Topic 44
+language word chinese sentence sentiment translation english natural corpus semantic
+--------------
+Topic 45
+speech speaker acoustic system audio sound recognition voice noise music
+--------------
+Topic 46
+fault diagnosis defect system failure condition process monitor bear vibration
+--------------
+Topic 47
+motor brain neuron neural cortex activity functional area activation spike
+--------------
+Topic 48
+multi fusion multiple information different single cross scale modality fuse
+--------------
+Topic 49
+color image light illumination enhancement skin contrast channel shadow histogram
+--------------
+Topic 50
+agent action policy reinforcement attack decision system ship reward state
+--------------
+Topic 51
+recognition pattern recognize character fingerprint accuracy system rate database iris
+--------------
+Topic 52
+face facial expression question database sign answer recognition image sleep
+--------------
+Topic 53
+emotion age child student emotional affective social micro old gender
+--------------
+Topic 54
+identification person generate generation generative adversarial synthesis style photo sketch
+--------------
+Topic 55
+material surface composite bone corner confidence tooth fire print property
+--------------
+Topic 56
+group distribute task communication formation cooperative team consensus collaborative allocation
+--------------
+Topic 57
+line inspection construction worker crowdsourcing crack pipeline site bridge vote
+--------------
+Topic 58
+flow optical vessel net retinal blood u optic vein vascular
+--------------
+Topic 59
+game al et player competition ecg heart ball play seismic
+--------------
+Topic 60
+risk outlier x branch ray market price financial stock credit
+--------------

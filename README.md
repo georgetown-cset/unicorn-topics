@@ -45,3 +45,15 @@ The current recommended number of topics is 60.
 So a sample run with current defaults but 15 top words would look like the following:
 
 `python3 topic_model.py 60 1 data/intermediate -w 15`
+
+# Results
+
+You can see the topics and their top ten relevant terms in [topic_terms.txt](data/results/topic_terms.txt). Note that
+these topic numbers will look different from the topic numbers produced by running `topic_model_gensim.py`.
+They are the same topics, but presented with different numbers; this is because `topic_model_gensim.py` presents
+the topics in order of topic coherence, while `topic_terms.txt` presents the topics
+in order of topic size.
+
+The latter ordering is chosen because it is somewhat more intuitive
+from a comprehension perspective, particularly for visualization purposes.
+The former is preserved in the code because it is valuable for model evaluation.
